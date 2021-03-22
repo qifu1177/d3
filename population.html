@@ -1,0 +1,108 @@
+<html>
+
+<head>
+    <script type="text/javascript" src="libs/d3.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="data/countries.json"></script>
+    <script type="text/javascript" src="data/population/population.json"></script>
+</head>
+
+<body>
+    <div id="stopUhr" style="height:65px;margin:1px 2px 1px 1px;text-align: center;vertical-align: middle;"
+        onclick="start()">
+    </div>
+    <audio id="bgmAudio" loop>
+        <source src="mp3/Journey of Hope.mp3" type="audio/mpeg">
+    </audio>
+
+    <svg></svg>
+    <script>
+        var cf = {
+            duration: 250,
+            factor: 1000,
+            n: 15,
+            k: 10,
+            showDelta: true,
+            minWidth: 0,
+            barSize: 30,
+            tickerSize: 20,
+            tickerContent: "Top 3 rise(thousand) in ",
+            margin: { top: 36, right: 100, bottom: 16, left: 150 },
+            width: 680,
+            height: 400,
+            deltaImg: {
+                width: 200,
+                height: 100,
+                marginTop: 30,
+                marginRight: 30
+            },
+            legend: "Population(thousand)",
+            legendFontSize: 15,
+            formatNumber: function (d) {
+                var formatNumber = d3.format(",d");
+                return formatNumber(d);
+            },
+            //formatDate: d3.utcFormat("%Y-%m"),
+            formatDate: function (d) {
+                //return function () {
+                    //let date=new Date(d);
+                    let q = 1;
+                    let m = d.getUTCMonth();
+                    if (m >= 1 && m < 4)
+                        q = 1;
+                    else if (m >= 4 && m < 7)
+                        q = 2;
+                    else if (m >= 7 && m < 10)
+                        q = 3;
+                    else
+                        q = 4;
+                    return d.getUTCFullYear();//+ " Q" + q;
+                //};
+            },
+            countries: countriesObj(countries),
+            init: function () {
+                this.height = this.margin.top + this.barSize * this.n + this.margin.bottom;
+            },
+            getImg: function (name) {
+                return "";
+            }
+        };
+        cf.init();
+        cf.getImg = function (name) {
+            let code = this.countries[name];
+            if (code == undefined)
+                return "";
+            return "https://www.countryflags.io/" + code + "/shiny/64.png";
+        };
+        var bgmAudio = document.getElementById("bgmAudio");
+        var duration = 0.1;
+        function start() {
+            if (bgmAudio.paused) {
+                setTimeout(function () {
+                    duration = 0;
+                    d3.select("#stopUhr").style("height", "6px").text('');
+                    //bgmAudio.play();
+                    chart(cf).run(function () {
+                        bgmAudio.pause();
+                    });
+                    //document.getElementById("btStart").click();
+                }, duration * 1000);
+                stopUhr();
+            } else {
+                bgmAudio.pause();
+            }
+
+        }
+        function stopUhr() {
+            d3.select("#stopUhr").text(duration--);
+            if (duration > 0) {
+                setTimeout(stopUhr, 1000);
+            }
+        }
+
+            //console.log(datavalues);
+    </script>
+
+</body>
+
+</html>
